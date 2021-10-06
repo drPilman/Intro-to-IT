@@ -7,3 +7,6 @@
 3. Подключить API стороннего переводчика. done(azure api)
 4. Собрать все с помощью Flask. done
 
+![Внешний вид приложения](https://user-images.githubusercontent.com/90282931/136211100-60c64a29-8608-42b0-a1ff-82e0ca9a6131.png)
+
+http://doktorpilman.tk:5000/
