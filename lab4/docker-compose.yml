@@ -1,0 +1,20 @@
+version: '3'
+services:
+  database:
+    image: "postgres"
+    env_file:
+      - .env
+      - secret.env
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+      - ./init_db:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+  app:
+    build: .
+    image: telegram_bot
+    env_file:
+      - .env
+      - secret.env
+    restart: always
+volumes:
+  database-data:
