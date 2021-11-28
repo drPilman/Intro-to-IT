@@ -2,13 +2,19 @@ services:
   postgres:
     image: postgres:13.3
     environment:
-      POSTGRES_DB: "mypgdb"
-      POSTGRES_USER: "dbadmin"
-      POSTGRES_PASSWORD: "pass"
+      POSTGRES_DB: "dc1jiq2lbfeqop"
+      POSTGRES_USER: "fwzjrfzekblkkz"
+      POSTGRES_PASSWORD: "fwzjrfzekblkkzfwzjrfzekblkkz"
+    volumes:
+      - ./init_db:/docker-entrypoint-initdb.d
+      - database-data:/var/lib/postgresql/data/
     ports:
       - "5433:5432"
+    restart: unless-stopped
   adminer:
     image: adminer
     restart: always
     ports:
-       - 8080:8080
+       - 8089:8080
+volumes:
+  database-data:

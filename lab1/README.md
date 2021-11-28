@@ -15,7 +15,7 @@ http://doktorpilman.tk:8088/
 ## HOW TO RUN
 Создать файл secret.env
 Поместить в него API_URL и API_IBM
-```
+```sh
 docker-compose up
 ```
 - PROFIT!!!
