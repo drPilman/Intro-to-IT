@@ -5,14 +5,14 @@ app = Flask(__name__)
 
 
 def parseform():
-    return request.form.get("textarea", ""), request.form.get("action", "")
+    return get(request.form.get("textarea", ""), request.form.get("action", ""))
 
 
 @app.route("/", methods=["post", "get"])
 def process():
-    return render_template("index.html", data=get(*parseform()))
+    return render_template("index.html", data=parseform())
 
 
 @app.route("/api", methods=["post"])
 def api():
-    return get(*parseform())
+    return parseform()
