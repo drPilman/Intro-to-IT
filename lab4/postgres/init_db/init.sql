@@ -3,8 +3,9 @@ create table users
 	id serial,
 	chat_id int not null,
 	state int not null,
-	login varchar,
-	age int
+	name varchar,
+	text varchar,
+	count int not null
 );
 
 create unique index users_id_uindex
