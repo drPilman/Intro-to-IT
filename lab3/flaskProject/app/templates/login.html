@@ -5,6 +5,11 @@
     <title>Login</title>
 </head>
 <body>
+{% if error %}
+<h1>Что-то пошло не так, попробуйте еще раз</h1>
+{% else %}
+<h1>Введите логин и пароль</h1>
+{% endif %}
     <form action="" method="post">
         <p>
      <label for="username">Username</label>

@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <form action="" method="post">
-        {% if full_name %}
-        <p>Hello, {{full_name}}! </p>
+        {% if data %}
+            <p>Hello, {{ data[1] }}! </p>
+            <p>Your login = {{ data[2] }}</p>
+            <p>And Password = {{ data[3] }}</p>
+        {% else %}
+            <p> Ты определенно попол сюда чудом </p>
         {% endif %}
 
-	</p>
 
     </form>
 </head>

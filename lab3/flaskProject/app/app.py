@@ -15,32 +15,44 @@ app = Flask(__name__)
 def login():
     if request.method == 'POST':
         if request.form.get("login"):
-            username = request.form.get('username')
+            username = request.form.get('username').strip()
             password = request.form.get('password')
-            cursor.execute(f"SELECT * FROM users WHERE login = '{username}' AND password = '{password}';")
-            records = list(cursor.fetchall())
-            if records:
-                return render_template('account.html', full_name=records[0][1])
+            if username:
+                cursor.execute(f"SELECT * FROM users WHERE login = '{username}' AND password = '{password}';")
+                records = list(cursor.fetchall())
+                if records:
+                    return render_template('account.html', data=records[0])
         elif request.form.get("registration"):
             return redirect("/registration/")
 
-    return render_template('login.html')
+    return render_template('login.html', error=request.method == 'POST')
 
 
 @app.route('/registration/', methods=['POST', 'GET'])
 def registration():
+    error = None
     if request.method == 'POST':
-        name = request.form.get('name')
-        login = request.form.get('login')
+        name = request.form.get('name').strip()
+        username = request.form.get('login').strip()
         password = request.form.get('password')
-        cursor.execute(f"INSERT INTO users (full_name, login, password) VALUES ('{name}', '{login}', '{password}');")
-        conn.commit()
-
-        return redirect('/login/')
-    return render_template('registration.html')
+        if not (name and username and password):
+            error = "Вы ввели не все данные."
+        elif not (username.islower() and username.isascii()):
+            error = "Логин должен быть в нижнем регистре и включать в себя только символы ASCII"
+        elif not password.isascii():
+            error = "Пароль должен включать в себя только символы ASCII"
+        else:
+            cursor.execute(f"SELECT * FROM users WHERE login = '{username}';")
+            records = list(cursor.fetchall())
+            if records:
+                error = "Данный логин уже занят."
+            else:
+                cursor.execute(f"INSERT INTO users (full_name, login, password) VALUES ('{name}', '{username}', '{password}');")
+                conn.commit()
+                return redirect('/login/')
+    return render_template('registration.html', error=error)
 
 
 @app.route('/')
 def index():
     return redirect("/login/")
-

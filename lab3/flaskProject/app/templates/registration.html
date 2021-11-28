@@ -5,6 +5,9 @@
     <title>Registration</title>
 </head>
 <body>
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
     <form action="" method="post">
       <p>
     <label for="name">Your name:</label>
