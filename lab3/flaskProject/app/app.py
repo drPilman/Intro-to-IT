@@ -13,19 +13,24 @@ app = Flask(__name__)
 
 @app.route('/login/', methods=['POST', 'GET'])
 def login():
+    error = None
     if request.method == 'POST':
         if request.form.get("login"):
             username = request.form.get('username').strip()
             password = request.form.get('password')
-            if username:
+            if username and username.islower() and username.isascii() and password and password.isascii():
                 cursor.execute(f"SELECT * FROM users WHERE login = '{username}' AND password = '{password}';")
                 records = list(cursor.fetchall())
                 if records:
                     return render_template('account.html', data=records[0])
+                else:
+                    error = "Некорректный логин или пароль"
+            else:
+                error = "Данные введены в некорректном формате"
         elif request.form.get("registration"):
             return redirect("/registration/")
 
-    return render_template('login.html', error=request.method == 'POST')
+    return render_template('login.html', error=error)
 
 
 @app.route('/registration/', methods=['POST', 'GET'])
@@ -47,7 +52,8 @@ def registration():
             if records:
                 error = "Данный логин уже занят."
             else:
-                cursor.execute(f"INSERT INTO users (full_name, login, password) VALUES ('{name}', '{username}', '{password}');")
+                cursor.execute(
+                    f"INSERT INTO users (full_name, login, password) VALUES ('{name}', '{username}', '{password}');")
                 conn.commit()
                 return redirect('/login/')
     return render_template('registration.html', error=error)
