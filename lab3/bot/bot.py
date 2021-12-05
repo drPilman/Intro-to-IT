@@ -45,6 +45,11 @@ def cmd_start(message):
     bot.send_message(message.chat.id, "Привет! Как я могу к тебе обращаться?")
     return States.S_ENTER_NAME
 
+@bot.message_handler(commands=["help"])
+@log
+def cmd_start(message):
+    bot.send_message(message.chat.id, "Я могу создать демотиватор.\nДля этого тебе необходимо представится, ввести текст и отправить изображение")
+
 
 @bot.message_handler(commands=["reset"])
 @state_change
