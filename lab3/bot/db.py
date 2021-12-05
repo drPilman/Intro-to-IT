@@ -1,11 +1,7 @@
-import psycopg2
 from config import *
 from sqlalchemy import *
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Session
-from sqlalchemy.ext.associationproxy import association_proxy
-import json
+from sqlalchemy.orm import declarative_base, Session
+
 
 Base = declarative_base()
 engine = create_engine(
