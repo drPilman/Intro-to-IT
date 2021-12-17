@@ -27,5 +27,20 @@ services:
         database:
             condition: service_healthy
     restart: unless-stopped
+  editor:
+    build: TimeTableEditor
+    image: time_table_editor
+    env_file:
+      - .env
+      - secret.env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=$DISPLAY
+    user:
+      qtuser
+    depends_on:
+      database:
+        condition: service_healthy
 volumes:
   database-data:
