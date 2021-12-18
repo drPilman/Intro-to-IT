@@ -34,12 +34,23 @@ class DataframeQSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
 
 class ImportSqlTableModel(QSqlRelationalTableModel):
-    def __init__(self, tablename, *args, **kwargs):
+    def __init__(self, tablename, hide, default, sort_id, filter_s, *args, **kwargs):
         super(ImportSqlTableModel, self).__init__(*args, **kwargs)
         self.setTable(tablename)
         self.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
+        self.setFilter(filter_s)
+
+        self.sort_id = sort_id
+        self.hide = hide
+        self.default = default
+        self.newRow = None
+        self.clearRow()
         self.select()
+
+    def clearRow(self):
         self.newRow = [''] * self.columnCount()
+        if self.default:
+            self.newRow[self.default[0]] = self.default[1]
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole or role == Qt.EditRole:
@@ -69,7 +80,7 @@ class ImportSqlTableModel(QSqlRelationalTableModel):
         for i in range(r.count()):
             r.setValue(r.fieldName(i), self.newRow[i])
         self.insertRecord(0, r)
-        self.newRow = [''] * self.columnCount()
+        self.clearRow()
         self.select()
         self.layoutChanged.emit()
 
@@ -93,10 +104,12 @@ class TimeTable(QWidget):
         self.vbox = QVBoxLayout(self)
         self.hbox = QHBoxLayout()
 
-        self.tables = ("subjects", "teachers", "timetable")
+        self.table_name = ("Предметы", "Преподаватели", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница")
+        self.tables = [("subjects", (), (), 0, ""), ("teachers", (0,), (), 1, "")] + \
+                      [("timetable", (0, 2), (2, i), 5, f"day = {i}") for i in range(5)]
         self.tab = 0
 
-        self.btn_tab = [QPushButton(x, self) for x in self.tables]
+        self.btn_tab = [QPushButton(x, self) for x in self.table_name]
         for i, btn in enumerate(self.btn_tab):
             btn.setStyleSheet(self.stylebutton)
             self.hbox.addWidget(btn)
@@ -105,15 +118,19 @@ class TimeTable(QWidget):
         self.btn_tab[self.tab].setStyleSheet(self.stylefocus)
 
         self.vbox.addLayout(self.hbox)
-        self.view = [QTableView() for x in self.tables]
-        self.model = [ImportSqlTableModel(x) for x in self.tables]
+        self.view = [QTableView() for x, _, _, _, _ in self.tables]
+        self.model = [ImportSqlTableModel(*x) for x in self.tables]
 
         self.model[1].setRelation(2, QSqlRelation('subjects', 'name', 'name'))
         self.model[2].setRelation(3, QSqlRelation('subjects', 'name', 'name'))
 
         for view, model in zip(self.view, self.model):
             view.setModel(model)
+            for x in model.hide:
+                view.hideColumn(x)
+            view.sortByColumn(model.sort_id, Qt.SortOrder.AscendingOrder)
             view.resizeColumnsToContents()
+            view.setItemDelegate(QSqlRelationalDelegate(view))
             view.hide()
             model.select()
 
@@ -122,10 +139,8 @@ class TimeTable(QWidget):
         # self.view[2].setModel(self.sorted)
         # self.view[2].setSortingEnabled(True)
 
-        self.view[1].hideColumn(0)
-        self.view[2].hideColumn(0)
-        self.view[1].setItemDelegate(QSqlRelationalDelegate(self.view[1]))
-        self.view[2].setItemDelegate(QSqlRelationalDelegate(self.view[2]))
+        # self.view[1].setItemDelegate(QSqlRelationalDelegate(self.view[1]))
+        # self.view[2].setItemDelegate(QSqlRelationalDelegate(self.view[2]))
 
         self.vbox.addWidget(self.view[self.tab])
         self.view[self.tab].show()
